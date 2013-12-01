@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Beatle
 {
@@ -12,25 +9,28 @@ namespace Beatle
     {
         private Socket s;
         public static MainForm parent;
-
+        public static bool isExiting = false;
 
         public void SendMessage(string msg, IPEndPoint partnerEndPoint)
         {
             if (Connect(partnerEndPoint))
             {
-                s.Send(Encoding.ASCII.GetBytes(msg), SocketFlags.None);
+                if (!isExiting)
+                {
+                    s.Send(Encoding.ASCII.GetBytes(msg), SocketFlags.None);
 
-                byte[] buffer = new byte[s.SendBufferSize];
-                int bytesRecieved = s.Receive(buffer);
+                    byte[] buffer = new byte[s.SendBufferSize];
+                    int bytesRecieved = s.Receive(buffer);
 
-                byte[] formatted = new byte[bytesRecieved];
+                    byte[] formatted = new byte[bytesRecieved];
 
-                for (int i = 0; i < formatted.Length; i++)
-                    formatted[i] = buffer[i];
+                    for (int i = 0; i < formatted.Length; i++)
+                        formatted[i] = buffer[i];
 
-                string strData = Encoding.ASCII.GetString(formatted);
+                    string strData = Encoding.ASCII.GetString(formatted);
 
-                parent.WriteRecievedSymboleToChat();
+                    parent.WriteRecievedSymboleToChat();
+                }
             }
             if (s.Connected) s.Close();
             s.Dispose();
@@ -45,8 +45,9 @@ namespace Beatle
             }
             catch
             {
-                parent.WriteErrorToChat();
-                return false;
+                //parent.WriteErrorToChat();
+                if (!isExiting)
+                    Connect(partnerEndPoint);
             }
             return true;
         }

@@ -11,18 +11,15 @@ using System.Threading;
 
 namespace Beatle
 {
-    public delegate void MessegeAdded(string messege, string sender);
     public partial class MainForm : MetroFramework.Forms.MetroForm
     {
+        public delegate void StringStringDelegate(string msg, string writer);
         private bool isShiftPressed = false;
         System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+        Thread listen;
 
-
-        //                                          [LocalHost:]   127.0.0.1   [Laptop:]   10.0.0.146
+        //                                                             127.0.0.1     10.0.0.146
         private IPEndPoint partnerEndPoint = new IPEndPoint(IPAddress.Parse("10.0.0.146"), 1998);
-
-
-        public delegate void StringStringDelegate(string msg, string writer);
 
 
 
@@ -31,9 +28,8 @@ namespace Beatle
             InitializeComponent();
             ChatTextBox.Select();
 
-
             InComing listener = new InComing();
-            Thread listen = new Thread(listener.Listen);
+            listen = new Thread(listener.Listen);
             listen.Start();
             InComing.messegeAddedEvent += WriteToChat;
 
@@ -42,6 +38,8 @@ namespace Beatle
             timer.Interval = 15;
             timer.Tick += timer_Tick;
             timer.Start();
+
+            this.Text += "Noam Gal"; // = GetFirstName() + GetLastName();
 
             Chat.Font = MetroFramework.MetroFonts.Label(MetroFramework.MetroLabelSize.Small, MetroFramework.MetroLabelWeight.Regular);
         }
@@ -96,8 +94,8 @@ namespace Beatle
         {
             if (ThreadSafety(new Action(WriteErrorToChat), new object[] { }))
                 return;
-
-            Chat.AppendText("Error Connection To Partner\r\n\r\n");
+            if (Chat != null)
+                Chat.AppendText("Error Connecting To Partner\r\n\r\n");
         }
 
 
@@ -168,6 +166,18 @@ namespace Beatle
             size.Height = Profile.Size.Height + 30;
 
             e.Graphics.DrawRectangle(new Pen(SystemColors.ControlLight, 2), new Rectangle(location, size));
+        }
+
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            OutGoing.isExiting = true;
+
+            InComing.isExiting = true;
+            Socket selfish = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            selfish.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1998));
+            selfish.Send(Encoding.ASCII.GetBytes("FLYING MONKEYS ARE WAY BETTER THAN A JAR OF PICKLES"), SocketFlags.None);
+
+            System.Windows.Forms.Application.Exit();
         }
     }
 }

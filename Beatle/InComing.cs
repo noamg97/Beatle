@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 
 namespace Beatle
@@ -12,8 +11,9 @@ namespace Beatle
         private byte[] buffer;
         private int port = 1998;
         public static event MessegeAdded messegeAddedEvent;
+        public delegate void MessegeAdded(string messege, string sender);
+        public static bool isExiting = false;
 
-        
         public void Listen()
         {
             try
@@ -27,19 +27,24 @@ namespace Beatle
                     while (true)
                         using (var accepted = socket.Accept())
                         {
-                            buffer = new byte[accepted.SendBufferSize];
-                            int bytesRecieved = accepted.Receive(buffer);
+                            if (!isExiting)
+                            {
+                                buffer = new byte[accepted.SendBufferSize];
+                                int bytesRecieved = accepted.Receive(buffer);
 
-                            byte[] formatted = new byte[bytesRecieved];
+                                byte[] formatted = new byte[bytesRecieved];
 
-                            for (int i = 0; i < formatted.Length; i++)
-                                formatted[i] = buffer[i];
+                                for (int i = 0; i < formatted.Length; i++)
+                                    formatted[i] = buffer[i];
 
-                            string strData = Encoding.ASCII.GetString(formatted);
+                                string strData = Encoding.ASCII.GetString(formatted);
 
-                            messegeAddedEvent.Invoke(strData + "\r\n", "Partner");
+                                messegeAddedEvent.Invoke(strData + "\r\n", "Partner");
 
-                            accepted.Send(Encoding.ASCII.GetBytes("[R]"));
+                                accepted.Send(Encoding.ASCII.GetBytes("[R]"));
+                            }
+                            else
+                                return;
                         }
                 }
             }

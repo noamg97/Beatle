@@ -130,7 +130,7 @@ namespace MetroFramework.Controls
             set { metroStyleManager = value; }
         }
 
-        private bool useCustomBackColor= false;
+        private bool useCustomBackColor = false;
         [DefaultValue(false)]
         [Category(MetroDefaults.PropertyCategory.Appearance)]
         public bool UseCustomBackColor
@@ -228,7 +228,7 @@ namespace MetroFramework.Controls
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            try 
+            try
             {
                 Color backColor = BackColor;
 
@@ -249,28 +249,28 @@ namespace MetroFramework.Controls
                     if (!useCustomBackColor)
                     {
                         backColor = MetroPaint.BackColor.Button.Normal(Theme);
-                    } 
+                    }
                 }
 
                 if (backColor.A == 255 && BackgroundImage == null)
-                { 
-                    e.Graphics.Clear(backColor); 
-                    return; 
-                } 
-                
+                {
+                    e.Graphics.Clear(backColor);
+                    return;
+                }
+
                 base.OnPaintBackground(e);
 
                 OnCustomPaintBackground(new MetroPaintEventArgs(backColor, Color.Empty, e.Graphics));
             }
             catch
-            { 
-                Invalidate(); 
+            {
+                Invalidate();
             }
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            try			
+            try
             {
                 if (GetStyle(ControlStyles.AllPaintingInWmPaint))
                 {
@@ -278,10 +278,10 @@ namespace MetroFramework.Controls
                 }
 
                 OnCustomPaint(new MetroPaintEventArgs(Color.Empty, Color.Empty, e.Graphics));
-                OnPaintForeground(e); 
+                OnPaintForeground(e);
             }
-            catch 
-            { 
+            catch
+            {
                 Invalidate();
             }
         }
@@ -321,7 +321,7 @@ namespace MetroFramework.Controls
                     foreColor = MetroPaint.ForeColor.Button.Normal(Theme);
                 }
             }
-            
+
             using (Pen p = new Pen(borderColor))
             {
                 Rectangle borderRect = new Rectangle(0, 0, Width - 1, Height - 1);
@@ -330,7 +330,7 @@ namespace MetroFramework.Controls
 
             if (Highlight && !isHovered && !isPressed && Enabled)
             {
-                using (Pen p = MetroPaint.GetStylePen(Style))
+                using (Pen p = new Pen(Color.FromArgb(5, 120, 255)))//MetroPaint.GetStylePen(Style))
                 {
                     Rectangle borderRect = new Rectangle(0, 0, Width - 1, Height - 1);
                     e.Graphics.DrawRectangle(p, borderRect);

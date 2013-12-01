@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.metroTabControl1 = new MetroFramework.Controls.MetroTabControl();
             this.metroTabPage4 = new MetroFramework.Controls.MetroTabPage();
             this.metroTabControl2 = new MetroFramework.Controls.MetroTabControl();
@@ -58,8 +59,7 @@
             // metroTabControl1
             // 
             this.metroTabControl1.Controls.Add(this.metroTabPage4);
-            this.metroTabControl1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.metroTabControl1.Location = new System.Drawing.Point(20, 60);
+            this.metroTabControl1.Location = new System.Drawing.Point(20, 50);
             this.metroTabControl1.Name = "metroTabControl1";
             this.metroTabControl1.SelectedIndex = 0;
             this.metroTabControl1.Size = new System.Drawing.Size(1060, 54);
@@ -207,7 +207,7 @@
             // 
             this.SendFileBtn.FontSize = MetroFramework.MetroButtonSize.Medium;
             this.SendFileBtn.FontWeight = MetroFramework.MetroButtonWeight.Light;
-            this.SendFileBtn.Location = new System.Drawing.Point(700, 544);
+            this.SendFileBtn.Location = new System.Drawing.Point(685, 544);
             this.SendFileBtn.Name = "SendFileBtn";
             this.SendFileBtn.Size = new System.Drawing.Size(83, 83);
             this.SendFileBtn.TabIndex = 8;
@@ -229,7 +229,7 @@
             // 
             this.OptionsBtn.FontSize = MetroFramework.MetroButtonSize.Medium;
             this.OptionsBtn.FontWeight = MetroFramework.MetroButtonWeight.Light;
-            this.OptionsBtn.Location = new System.Drawing.Point(890, 544);
+            this.OptionsBtn.Location = new System.Drawing.Point(905, 544);
             this.OptionsBtn.Name = "OptionsBtn";
             this.OptionsBtn.Size = new System.Drawing.Size(83, 83);
             this.OptionsBtn.TabIndex = 10;
@@ -266,6 +266,7 @@
             this.metroTile4.Location = new System.Drawing.Point(76, 142);
             this.metroTile4.Name = "metroTile4";
             this.metroTile4.Size = new System.Drawing.Size(500, 4);
+            this.metroTile4.Style = MetroFramework.MetroColorStyle.Blue;
             this.metroTile4.TabIndex = 12;
             this.metroTile4.UseSelectable = true;
             // 
@@ -274,6 +275,8 @@
             this.AccessibleName = "";
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackImage = ((System.Drawing.Image)(resources.GetObject("$this.BackImage")));
+            this.BackImagePadding = new System.Windows.Forms.Padding(25, 12, 0, 0);
             this.ClientSize = new System.Drawing.Size(1100, 680);
             this.Controls.Add(this.metroTile4);
             this.Controls.Add(this.metroTile3);
@@ -286,11 +289,16 @@
             this.Controls.Add(this.Send);
             this.Controls.Add(this.metroTabControl2);
             this.Controls.Add(this.metroTabControl1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(1100, 680);
             this.Name = "MainForm";
             this.Resizable = false;
             this.ShadowType = MetroFramework.Forms.MetroFormShadowType.AeroShadow;
             this.Tag = "";
-            this.Text = "BEATLE";
+            this.Text = "BEATLE™  -  ";
+            this.TextAlign = MetroFramework.Forms.MetroFormTextAlign.Center;
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.metroTabControl1.ResumeLayout(false);
             this.metroTabControl2.ResumeLayout(false);
             this.FriendsTab.ResumeLayout(false);
