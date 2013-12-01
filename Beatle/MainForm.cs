@@ -18,6 +18,11 @@ namespace Beatle
         System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
         Thread listen;
 
+        // "A monkey is way better than a jar of pickles."
+        // "The squirrel might have the answer."
+        // "Sincerely, I don't think that penguins should be able fly."
+        // "A little frog for Christmas."
+        // "Had the garden gnome died in the forest, there wouldn't have been any bunnies left for the mayor."
         //                                                             127.0.0.1     10.0.0.146
         private IPEndPoint partnerEndPoint = new IPEndPoint(IPAddress.Parse("10.0.0.146"), 1998);
 
@@ -175,7 +180,6 @@ namespace Beatle
             InComing.isExiting = true;
             Socket selfish = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             selfish.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1998));
-            selfish.Send(Encoding.ASCII.GetBytes("FLYING MONKEYS ARE WAY BETTER THAN A JAR OF PICKLES"), SocketFlags.None);
 
             System.Windows.Forms.Application.Exit();
         }
