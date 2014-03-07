@@ -18,13 +18,17 @@ namespace Beatle
         System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
         Thread listen;
 
-        // "A monkey is way better than a jar of pickles."
-        // "The squirrel might have the answer."
+
+
+        // "A monkey is way better than an old jar of pickles."
+        // "The squirrel has surely got the answer."
         // "Sincerely, I don't think that penguins should be able fly."
         // "A little frog for Christmas."
         // "Had the garden gnome died in the forest, there wouldn't have been any bunnies left for the mayor."
-        //                                                             127.0.0.1     10.0.0.146
-        private IPEndPoint partnerEndPoint = new IPEndPoint(IPAddress.Parse("10.0.0.146"), 1998);
+
+
+
+        private IPEndPoint partnerEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.10"), 1998);
 
 
 
@@ -162,15 +166,16 @@ namespace Beatle
 
         private void metroTabControl2_CustomPaint(object sender, MetroFramework.Drawing.MetroPaintEventArgs e)
         {
+            MetroFramework.Controls.MetroTabPage tab = (MetroFramework.Controls.MetroTabPage)((MetroFramework.Controls.MetroTabControl)sender).Controls[0];
             Point location = new Point();
-            location.X = Profile.Location.X;
-            location.Y = Profile.Location.Y - 29;
+            location.X = tab.Location.X-1;
+            location.Y = tab.Location.Y - 29;
 
             Size size = new Size();
-            size.Width = Profile.Size.Width + 1;
-            size.Height = Profile.Size.Height + 30;
+            size.Width = tab.Size.Width + 1;
+            size.Height = tab.Size.Height + 30;
 
-            e.Graphics.DrawRectangle(new Pen(SystemColors.ControlLight, 2), new Rectangle(location, size));
+            e.Graphics.DrawRectangle(new Pen(Color.FromArgb(255, 226, 227, 231), 1), new Rectangle(location, size));
         }
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
