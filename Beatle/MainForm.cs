@@ -18,6 +18,7 @@ namespace Beatle
         System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
         Thread listen;
 
+        ChatBoxManager a;
 
 
         // "A monkey is way better than an old jar of pickles."
@@ -28,7 +29,7 @@ namespace Beatle
 
 
 
-        private IPEndPoint partnerEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.10"), 1998);
+        private IPEndPoint partnerEndPoint = new IPEndPoint(IPAddress.Parse("138.0.0.1"), 1998);
 
 
 
@@ -36,6 +37,9 @@ namespace Beatle
         {
             InitializeComponent();
             ChatTextBox.Select();
+
+            a = new ChatBoxManager("noam", chatSender, chatMain, chatTime);
+
 
             InComing listener = new InComing();
             listen = new Thread(listener.Listen);
@@ -50,7 +54,9 @@ namespace Beatle
 
             this.Text += "Noam Gal"; // = GetFirstName() + GetLastName();
 
-            Chat.Font = MetroFramework.MetroFonts.Label(MetroFramework.MetroLabelSize.Small, MetroFramework.MetroLabelWeight.Regular);
+            chatMain.Font = MetroFramework.MetroFonts.Label(MetroFramework.MetroLabelSize.Medium, MetroFramework.MetroLabelWeight.Regular);
+            chatTime.Font = MetroFramework.MetroFonts.Label(MetroFramework.MetroLabelSize.Medium, MetroFramework.MetroLabelWeight.Regular);
+            chatSender.Font = MetroFramework.MetroFonts.Label(MetroFramework.MetroLabelSize.Medium, MetroFramework.MetroLabelWeight.Regular);
         }
 
         private void ChatTextBox_KeyPress(object sender, KeyPressEventArgs e)
@@ -87,7 +93,8 @@ namespace Beatle
                     return;
                 }
 
-                Chat.AppendText(writer + ":\t" + msg + Environment.NewLine);
+                a.AppendMessage(writer, msg, DateTime.Now);
+                //chatMain.AppendText(writer + ":\t" + msg + Environment.NewLine);
             }
         }
 
@@ -96,15 +103,15 @@ namespace Beatle
             if (ThreadSafety(new Action(WriteRecievedSymboleToChat), new object[] { }))
                 return;
 
-            Chat.AppendText("\t[R]\r\n\r\n");
+            chatMain.AppendText("\t[R]\r\n\r\n");
         }
 
         public void WriteErrorToChat()
         {
             if (ThreadSafety(new Action(WriteErrorToChat), new object[] { }))
                 return;
-            if (Chat != null)
-                Chat.AppendText("Error Connecting To Partner\r\n\r\n");
+            if (chatMain != null)
+                chatMain.AppendText("Error Connecting To Partner\r\n\r\n");
         }
 
 
@@ -148,12 +155,12 @@ namespace Beatle
         private void Chat_Enter(object sender, EventArgs e)
         {
             timer.Start();
-            HideCaret(Chat.Handle);
+            HideCaret(chatMain.Handle);
         }
 
         void timer_Tick(object sender, EventArgs e)
         {
-            HideCaret(Chat.Handle);
+            HideCaret(chatMain.Handle);
         }
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
@@ -168,7 +175,7 @@ namespace Beatle
         {
             MetroFramework.Controls.MetroTabPage tab = (MetroFramework.Controls.MetroTabPage)((MetroFramework.Controls.MetroTabControl)sender).Controls[0];
             Point location = new Point();
-            location.X = tab.Location.X-1;
+            location.X = tab.Location.X - 1;
             location.Y = tab.Location.Y - 29;
 
             Size size = new Size();
