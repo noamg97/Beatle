@@ -8,6 +8,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
 using System.Threading;
+using System.Runtime.InteropServices;
+
 
 namespace Beatle
 {
@@ -17,8 +19,8 @@ namespace Beatle
         private bool isShiftPressed = false;
         System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
         Thread listen;
-
-        ChatBoxManager a;
+        
+        ContactChatManager contact1;
 
 
         // "A monkey is way better than an old jar of pickles."
@@ -38,8 +40,12 @@ namespace Beatle
             InitializeComponent();
             ChatTextBox.Select();
 
-            a = new ChatBoxManager("noam", chatSender, chatMain, chatTime);
+            chatMain.Font = MetroFramework.MetroFonts.Label(MetroFramework.MetroLabelSize.Medium, MetroFramework.MetroLabelWeight.Regular);
+            chatTime.Font = MetroFramework.MetroFonts.Label(MetroFramework.MetroLabelSize.Medium, MetroFramework.MetroLabelWeight.Regular);
+            chatSender.Font = MetroFramework.MetroFonts.Label(MetroFramework.MetroLabelSize.Medium, MetroFramework.MetroLabelWeight.Regular);
 
+            ContactChatManager.InitializeChatTextBoxes(chatSender, chatMain, chatTime);
+            contact1 = new ContactChatManager("Noam Gal");
 
             InComing listener = new InComing();
             listen = new Thread(listener.Listen);
@@ -53,10 +59,6 @@ namespace Beatle
             timer.Start();
 
             this.Text += "Noam Gal"; // = GetFirstName() + GetLastName();
-
-            chatMain.Font = MetroFramework.MetroFonts.Label(MetroFramework.MetroLabelSize.Medium, MetroFramework.MetroLabelWeight.Regular);
-            chatTime.Font = MetroFramework.MetroFonts.Label(MetroFramework.MetroLabelSize.Medium, MetroFramework.MetroLabelWeight.Regular);
-            chatSender.Font = MetroFramework.MetroFonts.Label(MetroFramework.MetroLabelSize.Medium, MetroFramework.MetroLabelWeight.Regular);
         }
 
         private void ChatTextBox_KeyPress(object sender, KeyPressEventArgs e)
@@ -93,7 +95,7 @@ namespace Beatle
                     return;
                 }
 
-                a.AppendMessage(writer, msg, DateTime.Now);
+                contact1.AppendMessage(writer, msg, DateTime.Now);
                 //chatMain.AppendText(writer + ":\t" + msg + Environment.NewLine);
             }
         }
@@ -161,15 +163,12 @@ namespace Beatle
         void timer_Tick(object sender, EventArgs e)
         {
             HideCaret(chatMain.Handle);
+            HideCaret(chatTime.Handle);
+            HideCaret(chatSender.Handle);
         }
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         static extern bool HideCaret(IntPtr hWnd);
-
-        private void Chat_Leave(object sender, EventArgs e)
-        {
-            timer.Stop();
-        }
 
         private void metroTabControl2_CustomPaint(object sender, MetroFramework.Drawing.MetroPaintEventArgs e)
         {
@@ -195,5 +194,76 @@ namespace Beatle
 
             System.Windows.Forms.Application.Exit();
         }
+
+        private void chat_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode.Equals(Keys.Down) || e.KeyCode.Equals(Keys.Up))
+            {
+                chatTime.Scroll(e.KeyCode.Equals(Keys.Up));
+                e.Handled = true;
+            }
+        }
+
+        private void chat_MouseWheel(object sender, MouseEventArgs e)
+        {
+            chatTime.Scroll(e.Delta > 0);
+        }
+    }
+
+
+    class SyncTextBox : TextBox
+    {
+        public SyncTextBox()
+        {
+            this.Multiline = true;
+            //this.ScrollBars = ScrollBars.Vertical;
+        }
+        public TextBox Buddy1 { get; set; }
+        public TextBox Buddy2 { get; set; }
+
+        const uint WM_MOUSEWHEEL = 0x20A;
+        const uint WM_VSCROLL = 0x115;
+        const uint SB_LINEUP = 0;
+        const uint SB_LINEDOWN = 1;
+
+        public void Scroll(bool isUp)
+        {
+            System.Windows.Forms.Message m = new System.Windows.Forms.Message();
+            m.HWnd = this.Handle;
+            m.Msg = (int)WM_VSCROLL;
+            m.WParam = (IntPtr)(isUp ? SB_LINEUP : SB_LINEDOWN);
+            m.LParam = (IntPtr)0;
+
+            this.WndProc(ref m);
+        }
+
+        protected override void WndProc(ref System.Windows.Forms.Message m)
+        {
+            if (m.Msg == WM_VSCROLL)
+            {
+                if (Buddy1 != null && Buddy1.IsHandleCreated)
+                    SendMessage(Buddy1.Handle, m.Msg, m.WParam, m.LParam);
+
+                if (Buddy2 != null && Buddy2.IsHandleCreated)
+                    SendMessage(Buddy2.Handle, m.Msg, m.WParam, m.LParam);
+            }
+            if (m.Msg == WM_MOUSEWHEEL)
+            {
+                int delta = (int)m.WParam >> 16 & 0xFF;
+                if ((delta >> 7) == 1)
+                {
+                    SendMessage(this.Handle, (int)WM_VSCROLL, (IntPtr)SB_LINEDOWN, (IntPtr)0);
+                }
+                else
+                {
+                    SendMessage(this.Handle, (int)WM_VSCROLL, (IntPtr)SB_LINEUP, (IntPtr)0);
+                }
+            }
+            else
+                base.WndProc(ref m);
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, IntPtr lp);
     }
 }

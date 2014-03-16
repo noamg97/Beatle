@@ -24,23 +24,20 @@ namespace Beatle
     }
 
 
-    class ChatBoxManager
+    class ContactChatManager
     {
         List<Message> messages;
-        TextBox senderBox, messagesBox, timesBox;
-        string dataPath, dataFolderPath;
+        static TextBox sendersBox, messagesBox, timesBox;
+        string dataFilePath, dataFolderPath;
         string contactName;
         string lastMessageSender = "";
 
 
-        public ChatBoxManager(string contactName, TextBox senderBox, TextBox messagesBox, TextBox timesBox)
+        public ContactChatManager(string contactName)
         {
-            this.senderBox = senderBox;
-            this.messagesBox = messagesBox;
-            this.timesBox = timesBox;
             this.contactName = contactName;
-            dataFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Beatle";
-            dataPath = dataFolderPath + @"\" + contactName + ".txt";
+            dataFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Beatle\ChatsData";
+            dataFilePath = dataFolderPath + @"\" + contactName + ".txt";
             LoadFromData();
         }
 
@@ -53,11 +50,27 @@ namespace Beatle
             RewriteData();
         }
 
+
+        public static void InitializeChatTextBoxes(TextBox _sendersBox, TextBox _messagesBox, TextBox _timesBox)
+        {
+            sendersBox = _sendersBox;
+            messagesBox = _messagesBox;
+            timesBox = _timesBox;
+        }
+
+        public static void Clear()
+        {
+            sendersBox.Clear();
+            messagesBox.Clear();
+            timesBox.Clear();
+        }
+
+
         private void LoadFromData()
         {
-            if (File.Exists(dataPath))
+            if (File.Exists(dataFilePath))
             {
-                string text = File.ReadAllText(dataPath);
+                string text = File.ReadAllText(dataFilePath);
 
                 messages = JsonConvert.DeserializeObject<List<Message>>(text);
                 foreach (Message m in messages)
@@ -76,14 +89,14 @@ namespace Beatle
 
         private void RewriteData()
         {
-            TextWriter tw = File.CreateText(dataPath);
+            TextWriter tw = File.CreateText(dataFilePath);
             tw.Write(JsonConvert.SerializeObject(messages));
             tw.Close();
         }
 
         private void AppendMessageToChatBox(Message m)
         {
-            float _deltaLines = messagesBox.CreateGraphics().MeasureString(m.message, messagesBox.Font).Width / (messagesBox.Width - (messagesBox.Margin.Left + messagesBox.Margin.Right));
+            float _deltaLines = messagesBox.CreateGraphics().MeasureString(m.message, messagesBox.Font).Width / (messagesBox.Width);// - (messagesBox.Margin.Left + messagesBox.Margin.Right));
             int deltaLines = (int)Math.Ceiling(_deltaLines) - 1;
 
             string newLines = Environment.NewLine;
@@ -91,13 +104,23 @@ namespace Beatle
             for (int i = 0; i < deltaLines; i++)
                 newLines += Environment.NewLine;
 
+            //string c = "";
+            //for (int i = 0; i < m.message.Length; i++)
+            //{
+            //    c += m.message[i];
+            //    if (messagesBox.CreateGraphics().MeasureString(c, messagesBox.Font).Width > messagesBox.Width)
+            //    {
+            //        m.message = m.message.Insert(i, Environment.NewLine);
+            //        c = "";
+            //    }
+            //}
 
             string divider = (lastMessageSender != "" && m.sender != lastMessageSender) ? Environment.NewLine : "";
 
 
-            this.messagesBox.AppendText(divider + m.message + Environment.NewLine);
-            this.senderBox.AppendText(divider + (m.sender != lastMessageSender ? m.sender + ":" : "") + newLines);
-            this.timesBox.AppendText(divider + m.time.Hour + ":" + m.time.Minute + ":" + m.time.Second + newLines);
+            messagesBox.AppendText(divider + m.message + Environment.NewLine);
+            sendersBox.AppendText(divider + (m.sender != lastMessageSender ? m.sender + ":" : "") + newLines);
+            timesBox.AppendText(divider + m.time.ToString("HH") + ":" + m.time.ToString("mm") + ":" + m.time.ToString("ss") + newLines);
 
 
             lastMessageSender = m.sender;
