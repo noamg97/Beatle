@@ -28,7 +28,6 @@ namespace Beatle
     {
         List<Message> messages;
         static TextBox sendersBox, messagesBox, timesBox;
-        string dataFilePath, dataFolderPath;
         string contactName;
         string lastMessageSender = "";
 
@@ -36,8 +35,6 @@ namespace Beatle
         public ContactChatManager(string contactName)
         {
             this.contactName = contactName;
-            dataFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Beatle\ChatsData";
-            dataFilePath = dataFolderPath + @"\" + contactName + ".txt";
             LoadFromData();
         }
 
@@ -68,9 +65,9 @@ namespace Beatle
 
         private void LoadFromData()
         {
-            if (File.Exists(dataFilePath))
+            if (File.Exists(ContactsManager.ChatDataFolder + @"\" + contactName + ".txt"))
             {
-                string text = File.ReadAllText(dataFilePath);
+                string text = File.ReadAllText(ContactsManager.ChatDataFolder + @"\" + contactName + ".txt");
 
                 messages = JsonConvert.DeserializeObject<List<Message>>(text);
                 foreach (Message m in messages)
@@ -81,15 +78,13 @@ namespace Beatle
             else
             {
                 messages = new List<Message>();
-                if (!System.IO.Directory.Exists(dataFolderPath)) System.IO.Directory.CreateDirectory(dataFolderPath);
-                messages = new List<Message>();
                 RewriteData();
             }
         }
 
         private void RewriteData()
         {
-            TextWriter tw = File.CreateText(dataFilePath);
+            TextWriter tw = File.CreateText(ContactsManager.ChatDataFolder + @"\" + contactName + ".txt");
             tw.Write(JsonConvert.SerializeObject(messages));
             tw.Close();
         }
